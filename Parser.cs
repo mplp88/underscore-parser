@@ -6,13 +6,6 @@ namespace UnderscoreParser
 {
     public class Parser
     {
-        Logger logger { get; set; }
-
-        public Parser()
-        {
-            logger = Logger.GetInstance();
-        }
-
         public void ParseFileName(string filepath, out bool parseado)
         {
             Capitalizer capitalizer = new Capitalizer();
@@ -38,6 +31,7 @@ namespace UnderscoreParser
             filename = capitalizer.CapitalizeWords(filename, out capitalizado);
             
             if(parseado || capitalizado){
+                Logger logger = Logger.GetInstance();
                 Console.WriteLine("");
                 logger.AccumulateTextToLog("");
                 Console.WriteLine(string.Format("RENOMBRAR\n{0} a\n{1}\\{2}", filepath, path, filename));

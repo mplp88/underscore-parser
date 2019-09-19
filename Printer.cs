@@ -4,14 +4,7 @@ namespace UnderscoreParser
 {
     public class Printer
     {
-        Logger logger { get; set; }
-
-        public Printer()
-        {
-            logger = Logger.GetInstance();
-        }
-
-        public void PrintResultado(int cantidadArchivos)
+        public void PrintResult(int cantidadArchivos)
         {
             string resultado = "";
             
@@ -30,12 +23,21 @@ namespace UnderscoreParser
 
             Console.WriteLine("");
             Console.WriteLine(String.Format(resultado, cantidadArchivos));
+            Logger logger = Logger.GetInstance();
             logger.AccumulateTextToLog("");
             logger.AccumulateTextToLog(String.Format(resultado, cantidadArchivos));
         }
 
-        public void Log(string text) {
+        public void Print(string text) {
+            Console.Write(text);
+        }
+
+        public void PrintLine(string text) {
             Console.WriteLine(text);
+        }
+
+        public string ReadLine() {
+            return Console.ReadLine();
         }
     }
 }

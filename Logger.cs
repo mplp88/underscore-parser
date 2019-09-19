@@ -6,23 +6,28 @@ namespace UnderscoreParser
 {
     public class Logger
     {
-        private static Logger _logger;
-        public string AccumulatedTextToLog { get; set; }
         public string FileName { get; private set; }
         public string FilePath { get; private set; }
         public string FullPath { get; private set; }
-        private bool Created = false;
-        private StringBuilder _sb { get; set;}
+
+        private static Logger _logger;
+        private StringBuilder _sb;
+        private string AccumulatedTextToLog { get; set; }
+        private Printer printer { get; set; }
+        private bool FileCreated { get; set; }
 
         protected Logger()
         {
             AccumulatedTextToLog = string.Empty;
-            FileName = "UnderscoreParser.log";
+            FileCreated = false;
+            FileName = "UnderscoreParser";
             FilePath = AppContext.BaseDirectory + @"Logs\";
             FullPath = FilePath + FileName;
+            printer = new Printer();
             _sb = new StringBuilder();
         }
 
+        // Singleton para que todos mantengan el mismo AccumulatedTextToLog.
         public static Logger GetInstance()
         {
             if(_logger == null)
@@ -33,7 +38,7 @@ namespace UnderscoreParser
         
         public void Log(string textToLog)
         {
-            if(!Created) {
+            if(!FileCreated) {
                 CreateLogFile();
             }
 
@@ -45,14 +50,14 @@ namespace UnderscoreParser
         public void CreateLogFile() 
         {
             Console.WriteLine("");
-            Console.WriteLine(String.Format("Se guardará el log en la ruta: {0}{1}", FilePath, FileName));
+            Console.WriteLine(String.Format("Se guardará el log en la ruta: {0}", FullPath));
             Directory.CreateDirectory(FilePath);
             using(FileStream fs = File.Create(FullPath))
             {
-                byte[] data = new UTF8Encoding(true).GetBytes(string.Format("Log creado {0} \n\n", DateTime.Now));
+                byte[] data = new UTF8Encoding().GetBytes(string.Format("Log creado {0} \n\n", DateTime.Now));
                 fs.Write(data, 0, data.Length);
             }
-            Created = true;
+            FileCreated = true;
         }
 
         public void AccumulateTextToLog(string text)
@@ -60,14 +65,25 @@ namespace UnderscoreParser
             AccumulatedTextToLog += text + "\n";
         }
 
+        public void ClearAccumulatedTextToLog()
+        {
+            AccumulatedTextToLog = string.Empty;
+        }
+
         public void LogAccumulated()
         {
             Log(AccumulatedTextToLog);
         }
 
-        public void ClearTextToLog()
+        public void AskChangeFileName()
         {
-            AccumulatedTextToLog = string.Empty;
+            string fileName = string.Empty;
+            printer.Print("Nombre del archivo (Puede dejarse vacío): ");
+            fileName = Console.ReadLine();
+            if(!string.IsNullOrEmpty(fileName))
+            {
+                SetFileName(fileName);
+            }
         }
 
         public void SetFileName(string fileName)
@@ -84,7 +100,7 @@ namespace UnderscoreParser
 
         public void UpdateFullPath()
         {
-            FullPath = FilePath + FileName;
+            FullPath = FilePath + FileName + ".log";
         }
     }
 }

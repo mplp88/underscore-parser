@@ -4,8 +4,6 @@ namespace UnderscoreParser
 {
     class UnderscoreParser
     {
-        static Logger logger;
-
         static void Main(string[] args)
         {
             Printer printer = new Printer();
@@ -13,18 +11,18 @@ namespace UnderscoreParser
             try
             {
                 Parser parser = new Parser();
-                logger = Logger.GetInstance();
+                Logger logger = Logger.GetInstance();
                 int cantidadArchivos = 0;
                 bool modificado = false;
                 bool preguntarPorLog = true;
                 string guardarLog = string.Empty;
-                printer.Log("Uderscore Parser\n© Todos los derechos reservados");
+                printer.PrintLine("Uderscore Parser\n© Todos los derechos reservados");
                 logger.AccumulateTextToLog("Uderscore Parser\n© Todos los derechos reservados");
                 
                 if(args.Length > 0) {
-                    printer.Log("");
+                    printer.PrintLine("");
                     logger.AccumulateTextToLog("");
-                    printer.Log(string.Format("Lista de Archivos recibidos: \n{0}", string.Join("\n", args)));
+                    printer.PrintLine(string.Format("Lista de Archivos recibidos: \n{0}", string.Join("\n", args)));
                     logger.AccumulateTextToLog(string.Format("Lista de Archivos recibidos: \n{0}", string.Join("\n", args)));
 
                     foreach(string filepath in args) 
@@ -38,21 +36,23 @@ namespace UnderscoreParser
                     }
                 }
 
-                printer.Log("");
-                printer.PrintResultado(cantidadArchivos);
+                printer.PrintLine("");
+                printer.PrintResult(cantidadArchivos);
                 
                 do
                 {
-                    printer.Log("");
-                    printer.Log(" ------------------------------");
-                    printer.Log("| ¿Desea guardar el Log? (S/N) |");
-                    printer.Log("| (Default is N)               |");
-                    printer.Log(" ------------------------------");
+                    // Preguntar si se desea guardar el log de finalización exitosa.
+                    printer.PrintLine("");
+                    printer.PrintLine(" ------------------------------");
+                    printer.PrintLine("| ¿Desea guardar el Log? (S/N) |");
+                    printer.PrintLine("| (Por defecto N)              |");
+                    printer.PrintLine(" ------------------------------");
                     guardarLog = Console.ReadLine().ToUpper();
 
                     switch(guardarLog)
                     {
                         case "S":
+                            logger.AskChangeFileName();
                             logger.LogAccumulated();
                             preguntarPorLog = false;
                             break;
@@ -66,17 +66,27 @@ namespace UnderscoreParser
 
                 } while(preguntarPorLog);
 
-                printer.Log("");
-                printer.Log("Presione una telca para continuar...");
+                // Mensaje por defecto para finalizar la aplicación.
+                printer.PrintLine("");
+                printer.PrintLine("Presione una telca para continuar...");
                 Console.ReadKey();
             }
             catch(Exception e)
             {
-                printer.Log("Ocurrió un error inesperado");
-                printer.Log(string.Format("Message: {0}", e.Message));
-                printer.Log(string.Format("StackTrace: {0}", e.StackTrace));
-                printer.Log("");
-                printer.Log("Presione una telca para continuar...");
+                // Avisar que hubo un error.
+                printer.PrintLine("Ocurrió un error inesperado. Revise el log para más información");
+                
+                // Guardar el log del error
+                Logger logger = Logger.GetInstance();
+                logger.ClearAccumulatedTextToLog();
+                logger.SetFileName(string.Format("{0}_error", logger.FileName));
+                logger.Log("Ocurrió un error inesperado");
+                logger.Log(string.Format("Message: {0}", e.Message));
+                logger.Log(string.Format("StackTrace: {0}", e.StackTrace));
+                
+                // Mensaje por defecto para finalizar la aplicación.
+                printer.PrintLine("");
+                printer.PrintLine("Presione una telca para continuar...");
                 Console.ReadKey();
             }
         }
